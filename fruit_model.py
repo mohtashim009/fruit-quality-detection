@@ -1,29 +1,73 @@
-# fruit_model.py
-import tensorflow as tf
+import json
+from pathlib import Path
+
 import numpy as np
+import tensorflow as tf
 from PIL import Image
 
-# Load Pre-Trained Model (MobileNetV2)
-model = tf.keras.applications.MobileNetV2(weights='imagenet')
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "models" / "fruit_quality_finetuned.keras"
+CLASS_NAMES_PATH = BASE_DIR / "models" / "class_names.json"
+IMAGE_SIZE = (224, 224)
 
 
-# Function to Process Image
+def _load_class_names():
+    with open(CLASS_NAMES_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+print("Loading fine-tuned fruit quality model...")
+model = tf.keras.models.load_model(MODEL_PATH)
+class_names = _load_class_names()
+
+print(
+    f"Fruit quality model loaded successfully. "
+    f"Number of classes: {len(class_names)}"
+)
+
+
 def process_image(image_path):
-    img = Image.open(image_path).resize((224, 224))  # Resize for MobileNetV2
-    img = np.array(img) / 255.0  # Normalize
-    img = np.expand_dims(img, axis=0)
-    return img
+    """Load and resize an image for the trained MobileNetV2 model.
+
+    The trained model already contains its MobileNetV2 preprocessing layer,
+    so the image is kept in the normal 0-255 pixel range here.
+    """
+    with Image.open(image_path) as image:
+        image = image.convert("RGB")
+        image = image.resize(IMAGE_SIZE)
+        image_array = np.asarray(image, dtype=np.float32)
+
+    return np.expand_dims(image_array, axis=0)
 
 
-# Predict Fruit Name and Quality
 def predict_fruit(image_path):
-    img = process_image(image_path)
-    preds = model.predict(img)
-    decoded_preds = tf.keras.applications.mobilenet_v2.decode_predictions(preds, top=3)[0]
+    """Predict fruit type, quality, and confidence."""
+    image = process_image(image_path)
+    probabilities = model.predict(image, verbose=0)[0]
 
-    # Simplify Output
-    fruit_name = decoded_preds[0][1]  # Top-1 Prediction
-    print(decoded_preds[0])
-    confidence = decoded_preds[0][2]  # Confidence
-    quality = "Good" if confidence > 0.7 else "Average"
-    return fruit_name, quality
+    top_index = int(np.argmax(probabilities))
+    class_name = class_names[top_index]
+    confidence = float(probabilities[top_index]) * 100
+
+    # Classes are named like apple_fresh / apple_rotten.
+    if class_name.endswith("_fresh"):
+        quality = "Fresh"
+        fruit_name = class_name[:-6]
+    elif class_name.endswith("_rotten"):
+        quality = "Rotten"
+        fruit_name = class_name[:-7]
+    else:
+        fruit_name = class_name
+        quality = "Unknown"
+
+    fruit_name = fruit_name.replace("_", " ").title()
+
+    print("=" * 50)
+    print("Prediction Result")
+    print("=" * 50)
+    print(f"Fruit      : {fruit_name}")
+    print(f"Quality    : {quality}")
+    print(f"Confidence : {confidence:.2f}%")
+    print("=" * 50)
+
+    return fruit_name, quality, confidence

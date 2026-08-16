@@ -1,21 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fruit Detection Result</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, Arial, sans-serif;
+            background: linear-gradient(135deg, #f4fbf6, #eef7ff);
+            color: #17231b;
+            padding: 32px 20px;
+        }
+        .container { width: min(1000px, 100%); margin: auto; }
+        .header { text-align: center; margin-bottom: 26px; }
+        .header h1 { margin: 0 0 8px; font-size: 38px; }
+        .header p { margin: 0; color: #66736a; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .card {
+            background: rgba(255,255,255,.95);
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: 0 18px 50px rgba(23,35,27,.10);
+        }
+        .image-card { text-align: center; }
+        .image-card img {
+            width: 100%;
+            max-height: 480px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: #f4f6f4;
+        }
+        .label { color: #758078; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+        .fruit { font-size: 34px; font-weight: 800; margin: 6px 0 18px; }
+        .quality {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 999px;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+        .fresh { background: #e5f7e9; color: #1f7a39; }
+        .rotten { background: #ffe8e8; color: #b22d2d; }
+        .confidence-wrap { margin-bottom: 28px; }
+        .confidence-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; }
+        .bar { height: 11px; background: #e9eeea; border-radius: 99px; overflow: hidden; }
+        .bar span { display: block; height: 100%; background: #2c7a45; border-radius: inherit; }
+        .nutrition h2 { margin-top: 0; }
+        .nutrition ul { list-style: none; padding: 0; margin: 0; }
+        .nutrition li {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf0ed;
+        }
+        .nutrition li:last-child { border-bottom: 0; }
+        .back {
+            display: inline-block;
+            margin-top: 24px;
+            color: #216e39;
+            text-decoration: none;
+            font-weight: 800;
+        }
+        @media (max-width: 760px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 30px; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Detection Result</h1>
-    <p><b>Fruit Name:</b> {{ fruit_name }}</p>
-    <p><b>Quality:</b> {{ quality }}</p>
-    <p><b>Nutritional Info:</b></p>
-    <ul>
-        {% if nutrients != "Nutrient info not available" %}
-            {% for key, value in nutrients.items() %}
-                <li>{{ key }}: {{ value }}</li>
-            {% endfor %}
-        {% else %}
-            <li>{{ nutrients }}</li>
-        {% endif %}
-    </ul>
+    <main class="container">
+        <header class="header">
+            <h1>Detection Result</h1>
+            <p>Your image has been analyzed by the fruit quality model.</p>
+        </header>
+
+        <section class="grid">
+            <div class="card image-card">
+                <img src="{{ url_for('uploaded_file', filename=image_filename) }}" alt="Uploaded fruit image">
+            </div>
+
+            <div class="card">
+                <div class="label">Fruit detected</div>
+                <div class="fruit">{{ fruit_name }}</div>
+
+                <div class="label">Quality</div>
+                <div class="quality {{ quality|lower }}">{{ quality }}</div>
+
+                <div class="confidence-wrap">
+                    <div class="confidence-row">
+                        <span>Confidence</span>
+                        <span>{{ "%.2f"|format(confidence) }}%</span>
+                    </div>
+                    <div class="bar"><span style="width: {{ confidence }}%"></span></div>
+                </div>
+
+                <div class="nutrition">
+                    <h2>Nutritional Information</h2>
+                    {% if nutrients is mapping %}
+                        <ul>
+                            {% for key, value in nutrients.items() %}
+                                <li><span>{{ key|replace('_', ' ')|title }}</span><strong>{{ value }}</strong></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>{{ nutrients }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align:center;">
+            <a class="back" href="{{ url_for('home') }}">← Analyze another image</a>
+        </div>
+    </main>
 </body>
 </html>

@@ -10,7 +10,7 @@ from PIL import Image
 # Configuration
 # ============================================
 
-MODEL_PATH = "models/fruit_quality_model.keras"
+MODEL_PATH = "models/fruit_quality_finetuned.keras"
 CLASS_NAMES_PATH = "models/class_names.json"
 
 IMG_SIZE = (224, 224)

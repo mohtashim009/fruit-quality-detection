@@ -1,67 +1,87 @@
-# Fruit Identification Web App
+# Fruit Quality Detection
 
-A full-stack Flask web app that identifies a fruit from an uploaded image and
-displays a quality estimate and nutritional information.
+An AI-powered Flask web application that identifies a fruit and classifies its quality as **Fresh** or **Rotten** from an uploaded image.
 
-## How it works
+## Model
 
-- **`fruit_model.py`** — loads a pre-trained MobileNetV2 model (ImageNet
-  weights) via TensorFlow/Keras. The uploaded image is resized to 224×224,
-  normalized, and passed through the model. The top-1 decoded prediction is
-  used as the fruit name, and a simple confidence threshold (`> 0.7`) is
-  used as a "Good" / "Average" quality heuristic.
-- **`nutrient_data.py`** — a small lookup dictionary mapping fruit names to
-  basic nutritional info (calories, fiber, vitamin C, etc.).
-- **`app.py`** — the Flask app. Handles the image upload, calls the model,
-  looks up nutrition info, and renders the result.
-- **`templates/`** — `index.html` (upload form) and `result.html`
-  (prediction + nutrition display), rendered with Jinja2.
+The application uses a fine-tuned **MobileNetV2** model trained on a custom fruit-quality dataset with **28 classes**:
 
-## Tech stack
+- 14 fruit types
+- 2 quality categories per fruit: `fresh` and `rotten`
 
-Python, Flask, TensorFlow/Keras, NumPy, Pillow (PIL)
+The final fine-tuning run achieved **97.18% validation accuracy**.
 
-## Setup
+The trained model is stored at:
 
-1. Clone the repo and move into it:
-   ```bash
-   git clone https://github.com/mohtashim009/fruit-quality-detection.git
-   cd fruit-quality-detection
-   ```
+```text
+models/fruit_quality_finetuned.keras
+```
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   # Windows
-   venv\Scripts\activate
-   # macOS/Linux
-   source venv/bin/activate
-   ```
+Class labels are stored in:
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```text
+models/class_names.json
+```
 
-4. Run the app:
-   ```bash
-   python app.py
-   ```
+## Project structure
 
-5. Open `http://127.0.0.1:5000` in your browser, upload a fruit image, and
-   view the prediction.
+```text
+fruit_quality_detection/
+├── app.py
+├── fruit_model.py
+├── nutrient_data.py
+├── train.py
+├── fine_tune.py
+├── evaluate_model.py
+├── diagnose_model.py
+├── test_model.py
+├── requirements.txt
+├── models/
+│   ├── fruit_quality_model.keras
+│   ├── fruit_quality_finetuned.keras
+│   └── class_names.json
+├── templates/
+│   ├── index.html
+│   └── result.html
+└── uploads/
+```
+
+## How the application works
+
+1. The user uploads a fruit image through the Flask interface.
+2. The image is converted to RGB and resized to 224×224 pixels.
+3. The fine-tuned MobileNetV2 model predicts one of the 28 fruit-quality classes.
+4. The class label is split into fruit type and quality (`fresh` or `rotten`).
+5. The application displays the predicted fruit, quality, confidence score, uploaded image, and available nutritional information.
+
+## Run locally
+
+Activate the virtual environment:
+
+```powershell
+venv\Scripts\activate
+```
+
+Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Start Flask:
+
+```powershell
+python app.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
 
 ## Notes
 
-This project uses the pre-trained MobileNetV2 model directly (ImageNet
-weights) for inference — it is not fine-tuned or retrained on a custom
-fruit dataset. The "quality" label is a heuristic based on the model's
-prediction confidence, not a learned freshness/quality classifier.
+The fine-tuned model contains its MobileNetV2 preprocessing inside the saved Keras model, so `fruit_model.py` does not apply an additional `/255` normalization step before inference.
 
-## Possible improvements
-
-- Fine-tune MobileNetV2 (or train a smaller custom head) on a labeled
-  fruit-quality dataset (fresh vs. rotten) for a real quality classifier
-- Add OpenCV-based preprocessing (blur detection, background removal)
-- Expand the nutrient database or pull it from a live API
-- Add proper error handling and file-type validation on upload
+Uploaded test images are ignored by Git. Model files are also kept out of the repository if they are covered by the project's `.gitignore`.
