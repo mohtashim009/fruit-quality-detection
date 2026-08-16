@@ -530,4 +530,20 @@ Fruit + Quality + Confidence
 
 The final fine-tuned model achieved **97.18% validation accuracy**, with a **95.58% macro F1-score** across the 28 fruit-quality classes.
 
-````
+## Visual Demo
+
+### Home Page
+
+<img src="screenshots/home.png" alt="Fruit Quality Detection - Home Page" width="700">
+
+### Example 1 — Banana (Rotten)
+
+<img src="screenshots/banana-rotten.png" alt="Banana Rotten Detection" width="700">
+
+### Example 2 — Strawberry (Rotten)
+
+<img src="screenshots/strawberry-rotten.png" alt="Strawberry Rotten Detection" width="700">
+
+### Example 3 — Tomato (Fresh)
+
+<img src="screenshots/tomato-fresh.png" alt="Tomato Fresh Detection" width="700">
