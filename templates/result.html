@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Fruit Detection Result</title>
+</head>
+<body>
+    <h1>Detection Result</h1>
+    <p><b>Fruit Name:</b> {{ fruit_name }}</p>
+    <p><b>Quality:</b> {{ quality }}</p>
+    <p><b>Nutritional Info:</b></p>
+    <ul>
+        {% if nutrients != "Nutrient info not available" %}
+            {% for key, value in nutrients.items() %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        {% else %}
+            <li>{{ nutrients }}</li>
+        {% endif %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Uploaded test images (keep the folder, not its contents)
+uploads/*
+!uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# Uploaded files
+uploads/
+uploads/*
+
+# Trained models
+models/
+models/*
