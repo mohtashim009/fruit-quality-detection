@@ -20,5 +20,4 @@ uploads/
 uploads/*
 
 # Trained models
-models/
-models/*
+models/fruit_quality_model.keras
