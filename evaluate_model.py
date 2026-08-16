@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 DATASET_DIR = Path(r"G:\Unified_Dataset")
 
-MODEL_PATH = "models/fruit_quality_model.keras"
+MODEL_PATH = "models/fruit_quality_finetuned.keras"
 CLASS_NAMES_PATH = "models/class_names.json"
 
 IMG_SIZE = (224, 224)
